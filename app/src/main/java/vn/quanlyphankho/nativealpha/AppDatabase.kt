@@ -80,7 +80,7 @@ data class FuelEntity(
 
 @Dao
 interface PhanKhoDao {
-    @Query("SELECT * FROM people WHERE active = 1 ORDER BY name COLLATE NOCASE")
+    @Query("SELECT * FROM people WHERE active = 1 ORDER BY category, name COLLATE NOCASE")
     fun observePeople(): Flow<List<PersonEntity>>
 
     @Query("SELECT * FROM attendance WHERE date = :date")
@@ -102,7 +102,13 @@ interface PhanKhoDao {
     fun observeFuel(): Flow<List<FuelEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPerson(item: PersonEntity)
+    suspend fun insertPerson(item: PersonEntity): Long
+
+    @Update
+    suspend fun updatePerson(item: PersonEntity)
+
+    @Query("UPDATE people SET active = 0 WHERE id = :id")
+    suspend fun deactivatePerson(id: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAttendance(item: AttendanceEntity)
@@ -113,11 +119,17 @@ interface PhanKhoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFinance(item: FinanceEntity)
 
+    @Query("DELETE FROM finance_transactions WHERE id = :id")
+    suspend fun deleteFinance(id: Long)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTodo(item: TodoEntity)
 
     @Update
     suspend fun updateTodo(item: TodoEntity)
+
+    @Query("DELETE FROM todos WHERE id = :id")
+    suspend fun deleteTodo(id: Long)
 
     @Query("SELECT * FROM people ORDER BY id")
     suspend fun allPeople(): List<PersonEntity>
@@ -133,6 +145,21 @@ interface PhanKhoDao {
 
     @Query("SELECT * FROM todos ORDER BY date, id")
     suspend fun allTodos(): List<TodoEntity>
+
+    @Query("DELETE FROM attendance")
+    suspend fun clearAttendance()
+
+    @Query("DELETE FROM menus")
+    suspend fun clearMenus()
+
+    @Query("DELETE FROM finance_transactions")
+    suspend fun clearFinance()
+
+    @Query("DELETE FROM todos")
+    suspend fun clearTodos()
+
+    @Query("DELETE FROM people")
+    suspend fun clearPeople()
 }
 
 @Database(
