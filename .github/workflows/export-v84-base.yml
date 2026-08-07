@@ -1,0 +1,24 @@
+name: Export v84 base
+
+on:
+  push:
+    branches: [ agent/export-v84-base ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify v84
+        run: test -s legacy-web/so_bua_an_v84-finance-rebuild.html
+      - name: Upload v84
+        uses: actions/upload-artifact@v4
+        with:
+          name: v84-base-html
+          path: legacy-web/so_bua_an_v84-finance-rebuild.html
+          if-no-files-found: error
+          retention-days: 1
